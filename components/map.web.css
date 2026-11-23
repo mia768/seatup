@@ -1,0 +1,2 @@
+/* Keep attribution visible above the restaurant sheet and below the reset button. */
+.leaflet-top .leaflet-control-attribution { margin-top: 72px; max-width: 230px; }

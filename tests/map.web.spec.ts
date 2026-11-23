@@ -1,0 +1,36 @@
+import { test, expect } from '@playwright/test';
+
+test('web map filters markers, opens a restaurant and creates a booking', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.getByRole('tab', { name: 'Карта', exact: true }).click();
+  await expect(page.locator('.leaflet-container')).toBeVisible();
+  await expect(page.locator('.seatup-marker')).toHaveCount(3);
+  await expect(page.getByText('OpenStreetMap', { exact: true })).toBeVisible();
+  await page.getByLabel('Поиск ресторанов на карте').fill('Sushi');
+  await expect(page.locator('.seatup-marker')).toHaveCount(1);
+  await expect(page.getByLabel('Открыть Sushi Bar', { exact: true })).toBeVisible();
+  await page.getByLabel('Поиск ресторанов на карте').fill('нет такого ресторана');
+  await expect(page.locator('.seatup-marker')).toHaveCount(0);
+  await expect(page.getByText('Ничего не найдено. Измените поиск или кухню.')).toBeVisible();
+  await page.getByLabel('Очистить поиск').click();
+  await page.getByText('Японская', { exact: true }).first().click();
+  await expect(page.locator('.seatup-marker')).toHaveCount(1);
+  await page.getByText('Все', { exact: true }).click();
+  await expect(page.locator('.seatup-marker')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Развернуть список' }).click();
+  await page.getByRole('button', { name: 'Свернуть список' }).click();
+  await page.getByLabel('Показать на карте Pasta House', { exact: true }).click();
+  await page.locator('.seatup-marker[title="Pasta House"]').click();
+  await page.getByRole('button', { name: 'Открыть ресторан', exact: true }).click();
+  await page.getByRole('button', { name: 'Забронировать столик', exact: true }).click();
+  await page.getByRole('button', { name: 'Подтвердить бронирование' }).click();
+  await expect(page.getByText('Столик ждёт вас!')).toBeVisible();
+  await page.getByRole('button', { name: 'Мои бронирования' }).click();
+  await expect(page.getByRole('button', { name: 'Отменить бронирование' })).toBeVisible();
+  await page.reload();
+  await page.getByRole('tab', { name: 'Брони', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Отменить бронирование' })).toBeVisible();
+  expect(errors).toEqual([]);
+});
