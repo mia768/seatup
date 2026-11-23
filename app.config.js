@@ -1,0 +1,10 @@
+// Restrict this key to the Android package and signing certificate in Google Cloud.
+module.exports = ({ config }) => ({
+  ...config,
+  plugins: [
+    ...(config.plugins || []),
+    ['react-native-maps', {
+      ...(process.env.GOOGLE_MAPS_API_KEY ? { androidGoogleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY } : {}),
+    }],
+  ],
+});
